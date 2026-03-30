@@ -2,7 +2,7 @@
   <div id="dclient">
     <TitleBar />
     <div class="main-area">
-      <Sidebar />
+      <Sidebar @open-project="openProject" @add-project="addProject" />
       <div class="content-area">
         <TabBar @new="createTab" @close="closeTab" />
         <div class="terminal-area">
@@ -52,12 +52,35 @@ const currentTabConnected = computed(() => {
   return tab?.isConnected ?? false
 })
 
-async function createTab() {
+async function createTab(cwd?: string) {
   try {
     const id = await invoke<string>('spawn_pty', { cols: 80, rows: 24 })
-    store.addTab(id)
+    const name = cwd ? cwd.split('/').pop() || cwd.split('\\').pop() || 'Terminal' : undefined
+    store.addTab(id, name, cwd)
+    // 如果指定了目录，自动 cd
+    if (cwd) {
+      await invoke('write_pty', { id, data: `cd "${cwd}"\n` })
+    }
   } catch (e) {
     console.error('Failed to create PTY:', e)
+  }
+}
+
+// 打开项目目录：已有关联终端就切换，没有就新建
+function openProject(path: string) {
+  const existingTab = store.findTabByCwd(path)
+  if (existingTab) {
+    store.setActive(existingTab.id)
+  } else {
+    createTab(path)
+  }
+}
+
+// 添加项目目录
+function addProject() {
+  const path = window.prompt('输入项目目录路径：')
+  if (path?.trim()) {
+    store.addProject(path.trim())
   }
 }
 

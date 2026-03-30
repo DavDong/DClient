@@ -4,6 +4,7 @@ import { ref } from 'vue'
 export interface Tab {
   id: string        // PTY ID
   name: string      // 显示名称
+  cwd: string       // 工作目录
   isConnected: boolean
 }
 
@@ -11,9 +12,36 @@ export const useTerminalStore = defineStore('terminal', () => {
   const tabs = ref<Tab[]>([])
   const activeTabId = ref<string | null>(null)
 
-  function addTab(id: string, name?: string) {
+  // 已保存的项目目录列表（持久化到 localStorage）
+  const projects = ref<string[]>(JSON.parse(localStorage.getItem('dclient-projects') || '[]'))
+
+  function saveProjects() {
+    localStorage.setItem('dclient-projects', JSON.stringify(projects.value))
+  }
+
+  function addProject(path: string) {
+    if (!projects.value.includes(path)) {
+      projects.value.push(path)
+      saveProjects()
+    }
+  }
+
+  function removeProject(path: string) {
+    const idx = projects.value.indexOf(path)
+    if (idx !== -1) {
+      projects.value.splice(idx, 1)
+      saveProjects()
+    }
+  }
+
+  // 查找与目录关联的终端标签
+  function findTabByCwd(cwd: string): Tab | undefined {
+    return tabs.value.find(t => t.cwd === cwd && t.isConnected)
+  }
+
+  function addTab(id: string, name?: string, cwd?: string) {
     const tabName = name || `Terminal ${tabs.value.length + 1}`
-    tabs.value.push({ id, name: tabName, isConnected: true })
+    tabs.value.push({ id, name: tabName, cwd: cwd || '', isConnected: true })
     activeTabId.value = id
   }
 
@@ -41,5 +69,5 @@ export const useTerminalStore = defineStore('terminal', () => {
     if (tab) tab.isConnected = false
   }
 
-  return { tabs, activeTabId, addTab, removeTab, setActive, renameTab, setDisconnected }
+  return { tabs, activeTabId, projects, addTab, removeTab, setActive, renameTab, setDisconnected, addProject, removeProject, findTabByCwd }
 })
