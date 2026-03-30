@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nickel-org/nickel.rs/master/schema.json",
+  "productName": "DClient",
+  "version": "0.1.0",
+  "identifier": "com.dclient.app",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "title": "DClient",
+    "windows": [
+      {
+        "title": "DClient",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "decorations": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}
