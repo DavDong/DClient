@@ -1,8 +1,8 @@
 <template>
   <div class="title-bar" data-tauri-drag-region>
-    <div class="title-bar-logo">
-      <span class="logo-text">&block;&block;</span>
-      <span class="title-text">DCLIENT</span>
+    <div class="title-bar-logo" data-tauri-drag-region>
+      <span class="logo-text" data-tauri-drag-region>&block;&block;</span>
+      <span class="title-text" data-tauri-drag-region>DCLIENT</span>
     </div>
     <div class="title-bar-controls">
       <button class="ctrl-btn minimize" @click="minimize">&#x2500;</button>
