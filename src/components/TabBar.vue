@@ -18,11 +18,24 @@
         @keyup.enter="finishRename(tab.id)"
         @keyup.escape="cancelRename"
       />
-      <button class="tab-close" @click.stop="$emit('close', tab.id)">&#x2715;</button>
+      <button class="tab-close" @click.stop="requestClose(tab)">&#x2715;</button>
     </div>
     <button class="tab-add" @click="$emit('new')">
       <span>+ NEW</span>
     </button>
+
+    <!-- 关闭标签确认弹窗 -->
+    <Teleport to="body">
+      <div v-if="closingTab" class="confirm-overlay" @click.self="closingTab = null">
+        <div class="confirm-dialog">
+          <p class="confirm-text">确定关闭终端「{{ closingTab.name }}」？</p>
+          <div class="confirm-actions">
+            <button class="confirm-btn cancel" @click="closingTab = null">取消</button>
+            <button class="confirm-btn ok" @click="confirmCloseTab">确定关闭</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -34,11 +47,27 @@ const store = useTerminalStore()
 const editingId = ref<string | null>(null)
 const editName = ref('')
 const renameInput = ref<HTMLInputElement[]>()
+const closingTab = ref<Tab | null>(null)
 
-defineEmits<{
+const emit = defineEmits<{
   close: [id: string]
   new: []
 }>()
+
+function requestClose(tab: Tab) {
+  if (tab.isConnected) {
+    closingTab.value = tab
+  } else {
+    emit('close', tab.id)
+  }
+}
+
+function confirmCloseTab() {
+  if (closingTab.value) {
+    emit('close', closingTab.value.id)
+    closingTab.value = null
+  }
+}
 
 function startRename(tab: Tab) {
   editingId.value = tab.id
@@ -168,5 +197,72 @@ function cancelRename() {
   border-color: var(--neon-purple);
   box-shadow: var(--glow-purple);
   background: rgba(191, 90, 242, 0.05);
+}
+
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.confirm-dialog {
+  background: var(--bg-panel);
+  border: 1px solid var(--neon-purple);
+  box-shadow: var(--glow-purple);
+  border-radius: 8px;
+  padding: 24px;
+  min-width: 320px;
+}
+
+.confirm-text {
+  color: var(--text-primary);
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.confirm-btn {
+  padding: 8px 24px;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-btn.cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.confirm-btn.cancel:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.confirm-btn.ok {
+  background: transparent;
+  border: 1px solid var(--neon-red);
+  color: var(--neon-red);
+}
+
+.confirm-btn.ok:hover {
+  background: var(--neon-red);
+  color: white;
+  box-shadow: var(--glow-red);
 }
 </style>
