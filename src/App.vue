@@ -1,20 +1,26 @@
 <template>
   <div id="dclient">
     <TitleBar />
-    <TabBar @new="createTab" @close="closeTab" />
-    <div class="terminal-area">
-      <TerminalView
-        v-for="tab in store.tabs"
-        :key="tab.id"
-        :pty-id="tab.id"
-        :is-visible="tab.id === store.activeTabId"
-        @exit="onTabExit(tab.id)"
-        @info="onTabInfo"
-      />
-      <div v-if="store.tabs.length === 0" class="empty-state">
-        <div class="empty-logo">&block;&block;&block;</div>
-        <p>DCLIENT</p>
-        <button class="empty-btn" @click="createTab">+ NEW TERMINAL</button>
+    <div class="main-area">
+      <Sidebar />
+      <div class="content-area">
+        <TabBar @new="createTab" @close="closeTab" />
+        <div class="terminal-area">
+          <TerminalView
+            v-for="tab in store.tabs"
+            :key="tab.id"
+            :pty-id="tab.id"
+            :is-visible="tab.id === store.activeTabId"
+            @exit="onTabExit(tab.id)"
+            @info="onTabInfo"
+          />
+          <div v-if="store.tabs.length === 0" class="empty-state">
+            <div class="empty-logo">&#x2593;&#x2593;&#x2593;</div>
+            <p>DCLIENT</p>
+            <button class="empty-btn" @click="createTab">+ NEW TERMINAL</button>
+          </div>
+        </div>
+        <ChatPanel :pty-id="store.activeTabId" />
       </div>
     </div>
     <StatusBar
@@ -33,6 +39,8 @@ import TitleBar from '@/components/TitleBar.vue'
 import TabBar from '@/components/TabBar.vue'
 import TerminalView from '@/components/TerminalView.vue'
 import StatusBar from '@/components/StatusBar.vue'
+import Sidebar from '@/components/Sidebar.vue'
+import ChatPanel from '@/components/ChatPanel.vue'
 import { useTerminalStore } from '@/stores/terminal'
 
 const store = useTerminalStore()
@@ -81,6 +89,19 @@ onMounted(() => {
   flex-direction: column;
   height: 100vh;
   background: var(--bg-primary);
+}
+
+.main-area {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.content-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
 }
 
 .terminal-area {
