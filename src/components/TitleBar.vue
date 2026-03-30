@@ -14,12 +14,21 @@
 
 <script setup lang="ts">
 import { getCurrentWindow } from '@tauri-apps/api/window'
+import { useTerminalStore } from '@/stores/terminal'
 
 const appWindow = getCurrentWindow()
+const store = useTerminalStore()
 
 function minimize() { appWindow.minimize() }
 function toggleMaximize() { appWindow.toggleMaximize() }
-function close() { appWindow.close() }
+
+async function close() {
+  if (store.tabs.length > 0) {
+    const confirmed = window.confirm(`当前有 ${store.tabs.length} 个终端会话运行中，确定关闭？`)
+    if (!confirmed) return
+  }
+  appWindow.close()
+}
 </script>
 
 <style scoped>
