@@ -1,14 +1,14 @@
 <template>
   <div class="sidebar">
-    <div class="sidebar-icons">
+    <div class="sidebar-nav">
       <button
         v-for="item in menuItems"
         :key="item.id"
-        :class="['sidebar-icon', { active: activePanel === item.id }]"
-        :title="item.label"
+        :class="['nav-item', { active: activePanel === item.id }]"
         @click="togglePanel(item.id)"
       >
-        <span class="icon-text">{{ item.icon }}</span>
+        <span class="nav-icon">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
       </button>
     </div>
     <div v-if="activePanel" class="sidebar-panel">
@@ -17,7 +17,7 @@
         <button class="panel-close" @click="activePanel = null">&#x2715;</button>
       </div>
       <div class="panel-content">
-        <p class="panel-placeholder">{{ currentLabel }}（开发中）</p>
+        <p class="panel-placeholder">{{ currentLabel }}功能开发中...</p>
       </div>
     </div>
   </div>
@@ -27,11 +27,11 @@
 import { ref, computed } from 'vue'
 
 const menuItems = [
-  { id: 'projects', icon: 'DIR', label: '项目目录' },
-  { id: 'history', icon: 'LOG', label: '会话历史' },
-  { id: 'skills', icon: 'SKL', label: '技能' },
-  { id: 'plugins', icon: 'PLG', label: '插件' },
-  { id: 'settings', icon: 'SET', label: '设置' },
+  { id: 'projects', icon: '◫', label: '项目' },
+  { id: 'history', icon: '◷', label: '历史' },
+  { id: 'skills', icon: '◆', label: '技能' },
+  { id: 'plugins', icon: '⊞', label: '插件' },
+  { id: 'settings', icon: '⚙', label: '设置' },
 ]
 
 const activePanel = ref<string | null>(null)
@@ -52,67 +52,79 @@ function togglePanel(id: string) {
   flex-shrink: 0;
 }
 
-.sidebar-icons {
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  width: 64px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  padding: 8px 0;
+  gap: 2px;
+}
+
+.nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 48px;
-  background: var(--bg-tab);
-  border-right: 1px solid var(--border);
-  padding-top: 8px;
-  gap: 4px;
-}
-
-.sidebar-icon {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
   justify-content: center;
+  gap: 3px;
+  height: 52px;
+  margin: 0 6px;
   background: transparent;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
+  position: relative;
 }
 
-.icon-text {
-  font-family: 'Fira Code', monospace;
-  font-size: 9px;
-  font-weight: 600;
+.nav-icon {
+  font-size: 18px;
   color: var(--text-secondary);
-  letter-spacing: 0.5px;
-  transition: color 0.2s;
+  transition: color 0.15s;
+  line-height: 1;
 }
 
-.sidebar-icon:hover {
-  background: var(--bg-tab-hover);
+.nav-label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: color 0.15s;
 }
 
-.sidebar-icon:hover .icon-text {
+.nav-item:hover {
+  background: var(--bg-sidebar-hover);
+}
+
+.nav-item:hover .nav-icon {
   color: var(--text-primary);
 }
 
-.sidebar-icon.active {
-  background: var(--bg-tab-active);
+.nav-item:hover .nav-label {
+  color: var(--text-secondary);
 }
 
-.sidebar-icon.active::before {
+.nav-item.active {
+  background: var(--accent-dim);
+}
+
+.nav-item.active::before {
   content: '';
   position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 2px;
-  background: var(--neon-green);
-  box-shadow: var(--glow-green);
-  border-radius: 0 1px 1px 0;
+  left: -6px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
 }
 
-.sidebar-icon.active .icon-text {
-  color: var(--neon-green);
-  text-shadow: var(--glow-green);
+.nav-item.active .nav-icon {
+  color: var(--accent);
+}
+
+.nav-item.active .nav-label {
+  color: var(--accent-light);
 }
 
 .sidebar-panel {
@@ -127,42 +139,40 @@ function togglePanel(id: string) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border);
 }
 
 .panel-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
-  letter-spacing: 1px;
 }
 
 .panel-close {
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 12px;
-  font-family: 'Fira Code', monospace;
-  padding: 2px 4px;
-  border-radius: 2px;
-  transition: all 0.2s;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: all 0.15s;
 }
 
 .panel-close:hover {
-  color: var(--neon-red);
-  text-shadow: var(--glow-red);
+  color: var(--color-error);
+  background: rgba(248, 113, 113, 0.1);
 }
 
 .panel-content {
   flex: 1;
-  padding: 16px 12px;
+  padding: 16px 14px;
   overflow-y: auto;
 }
 
 .panel-placeholder {
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-size: 12px;
   text-align: center;
   padding-top: 40px;

@@ -31,29 +31,29 @@ let unlistenOutput: UnlistenFn | null = null
 let unlistenExit: UnlistenFn | null = null
 let resizeObserver: ResizeObserver | null = null
 
-// 赛博朋克终端主题
-const cyberpunkTheme = {
-  background: '#0a0a0f',
-  foreground: '#d0d0e0',
-  cursor: '#00ff88',
-  cursorAccent: '#0a0a0f',
-  selectionBackground: 'rgba(0,212,255,0.3)',
+// Reqable 橙黑终端主题
+const termTheme = {
+  background: '#1a1a1a',
+  foreground: '#e5e5e5',
+  cursor: '#ff6b2b',
+  cursorAccent: '#1a1a1a',
+  selectionBackground: 'rgba(255,107,43,0.2)',
   selectionForeground: '#ffffff',
-  black: '#1a1a2e',
-  red: '#ff3b5c',
-  green: '#00ff88',
-  yellow: '#ffd60a',
-  blue: '#00d4ff',
-  magenta: '#bf5af2',
-  cyan: '#00d4ff',
-  white: '#d0d0e0',
-  brightBlack: '#3a3a5a',
-  brightRed: '#ff6b8a',
-  brightGreen: '#33ffaa',
-  brightYellow: '#ffe066',
-  brightBlue: '#33ddff',
-  brightMagenta: '#d07aff',
-  brightCyan: '#33ddff',
+  black: '#1a1a1a',
+  red: '#f87171',
+  green: '#4ade80',
+  yellow: '#fbbf24',
+  blue: '#60a5fa',
+  magenta: '#c084fc',
+  cyan: '#22d3ee',
+  white: '#e5e5e5',
+  brightBlack: '#555555',
+  brightRed: '#fca5a5',
+  brightGreen: '#86efac',
+  brightYellow: '#fde68a',
+  brightBlue: '#93c5fd',
+  brightMagenta: '#d8b4fe',
+  brightCyan: '#67e8f9',
   brightWhite: '#ffffff',
 }
 
@@ -61,8 +61,8 @@ onMounted(async () => {
   if (!terminalEl.value) return
 
   terminal = new Terminal({
-    theme: cyberpunkTheme,
-    fontFamily: "'Fira Code', monospace",
+    theme: termTheme,
+    fontFamily: "'Fira Code', 'Consolas', monospace",
     fontSize: 14,
     cursorBlink: true,
     cursorStyle: 'block',

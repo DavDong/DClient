@@ -124,8 +124,9 @@ function cancelRename() {
 .tab.active {
   background: var(--bg-tab-active);
   color: var(--text-primary);
-  border-color: var(--neon-green);
-  box-shadow: var(--glow-green);
+  border-left: 3px solid var(--accent);
+  border-color: transparent;
+  border-left-color: var(--accent);
 }
 
 .tab-indicator {
@@ -134,8 +135,7 @@ function cancelRename() {
 }
 
 .tab-indicator.connected {
-  color: var(--neon-green);
-  text-shadow: var(--glow-green);
+  color: var(--color-success);
 }
 
 .tab-name {
@@ -146,9 +146,9 @@ function cancelRename() {
 
 .tab-rename-input {
   background: transparent;
-  border: 1px solid var(--neon-blue);
+  border: 1px solid var(--accent);
   color: var(--text-primary);
-  font-family: 'Fira Code', monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   padding: 0 4px;
   width: 100px;
@@ -174,8 +174,7 @@ function cancelRename() {
 }
 
 .tab-close:hover {
-  color: var(--neon-red);
-  text-shadow: var(--glow-red);
+  color: var(--color-error);
 }
 
 .tab-add {
@@ -184,19 +183,19 @@ function cancelRename() {
   height: 30px;
   padding: 0 12px;
   border-radius: 4px;
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--accent);
   background: transparent;
-  color: var(--neon-purple);
-  font-family: 'Fira Code', monospace;
+  color: var(--accent);
+  font-family: var(--font-mono);
   font-size: 11px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .tab-add:hover {
-  border-color: var(--neon-purple);
-  box-shadow: var(--glow-purple);
-  background: rgba(191, 90, 242, 0.05);
+  border-color: var(--accent-light);
+  color: var(--accent-light);
+  background: var(--accent-dim);
 }
 
 .confirm-overlay {
@@ -214,9 +213,8 @@ function cancelRename() {
 
 .confirm-dialog {
   background: var(--bg-panel);
-  border: 1px solid var(--neon-purple);
-  box-shadow: var(--glow-purple);
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 24px;
   min-width: 320px;
 }
@@ -236,8 +234,8 @@ function cancelRename() {
 
 .confirm-btn {
   padding: 8px 24px;
-  border-radius: 4px;
-  font-family: 'Fira Code', monospace;
+  border-radius: 6px;
+  font-family: var(--font-ui);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
@@ -256,13 +254,12 @@ function cancelRename() {
 
 .confirm-btn.ok {
   background: transparent;
-  border: 1px solid var(--neon-red);
-  color: var(--neon-red);
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
 }
 
 .confirm-btn.ok:hover {
-  background: var(--neon-red);
+  background: var(--color-error);
   color: white;
-  box-shadow: var(--glow-red);
 }
 </style>

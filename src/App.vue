@@ -121,8 +121,7 @@ onMounted(() => {
 
 .empty-logo {
   font-size: 48px;
-  color: var(--neon-green);
-  text-shadow: var(--glow-green);
+  color: var(--accent);
 }
 
 .empty-state p {
@@ -134,10 +133,10 @@ onMounted(() => {
 
 .empty-btn {
   padding: 10px 24px;
-  border: 1px solid var(--neon-purple);
+  border: 1px solid var(--accent);
   background: transparent;
-  color: var(--neon-purple);
-  font-family: 'Fira Code', monospace;
+  color: var(--accent);
+  font-family: var(--font-ui);
   font-size: 14px;
   cursor: pointer;
   border-radius: 4px;
@@ -145,7 +144,8 @@ onMounted(() => {
 }
 
 .empty-btn:hover {
-  box-shadow: var(--glow-purple);
-  background: rgba(191, 90, 242, 0.1);
+  background: var(--accent-dim);
+  color: var(--accent-light);
+  border-color: var(--accent-light);
 }
 </style>

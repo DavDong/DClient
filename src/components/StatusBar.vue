@@ -42,12 +42,11 @@ defineProps<{
 
 .status-indicator {
   font-size: 8px;
-  color: var(--neon-red);
+  color: var(--color-error);
 }
 
 .status-indicator.connected {
-  color: var(--neon-green);
-  text-shadow: var(--glow-green);
+  color: var(--color-success);
 }
 
 .status-right {

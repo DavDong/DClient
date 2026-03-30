@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap');
 
 * {
   margin: 0;
@@ -7,41 +7,64 @@
 }
 
 :root {
-  --bg-primary: #0a0a0f;
-  --bg-panel: #12121a;
-  --bg-tab: #0d0d15;
-  --bg-tab-active: #1a1a2e;
-  --bg-tab-hover: #16162a;
-  --neon-green: #00ff88;
-  --neon-purple: #bf5af2;
-  --neon-blue: #00d4ff;
-  --neon-red: #ff3b5c;
-  --neon-yellow: #ffd60a;
-  --text-primary: #d0d0e0;
-  --text-secondary: #6a6a8a;
-  --border: #1a1a2e;
-  --glow-green: 0 0 10px rgba(0, 255, 136, 0.3);
-  --glow-purple: 0 0 10px rgba(191, 90, 242, 0.3);
-  --glow-blue: 0 0 10px rgba(0, 212, 255, 0.3);
-  --glow-red: 0 0 10px rgba(255, 59, 92, 0.3);
+  /* Reqable 风格：深黑 + 橙色 */
+  --bg-primary: #1a1a1a;
+  --bg-panel: #222222;
+  --bg-tab: #1e1e1e;
+  --bg-tab-active: #2c2c2c;
+  --bg-tab-hover: #2a2a2a;
+  --bg-sidebar: #1a1a1a;
+  --bg-sidebar-hover: #2a2a2a;
+  --bg-sidebar-active: #2c2c2c;
+  --bg-input: #2a2a2a;
+
+  /* 橙色主色调 */
+  --accent: #ff6b2b;
+  --accent-light: #ff8c55;
+  --accent-dim: rgba(255, 107, 43, 0.15);
+  --accent-glow: 0 0 8px rgba(255, 107, 43, 0.25);
+
+  /* 功能色 */
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
+
+  /* 文字 */
+  --text-primary: #e5e5e5;
+  --text-secondary: #888888;
+  --text-muted: #555555;
+
+  /* 边框 */
+  --border: #333333;
+  --border-light: #3a3a3a;
+
+  /* 字体 */
+  --font-ui: 'Inter', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'Fira Code', 'SF Mono', 'Consolas', monospace;
 }
 
 body {
   margin: 0;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Fira Code', monospace;
+  font-family: var(--font-ui);
+  font-size: 13px;
   overflow: hidden;
   user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }

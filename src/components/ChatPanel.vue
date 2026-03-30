@@ -121,8 +121,8 @@ watch(() => props.ptyId, () => {
 
 .chat-message.user {
   align-self: flex-end;
-  background: rgba(0, 212, 255, 0.1);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: var(--accent-dim);
+  border: 1px solid rgba(255, 107, 43, 0.2);
 }
 
 .chat-message.system {
@@ -141,8 +141,8 @@ watch(() => props.ptyId, () => {
 }
 
 .chat-message.user .msg-tag {
-  color: var(--neon-blue);
-  background: rgba(0, 212, 255, 0.1);
+  color: var(--accent);
+  background: var(--accent-dim);
 }
 
 .chat-message.system .msg-tag {
@@ -201,8 +201,7 @@ watch(() => props.ptyId, () => {
 }
 
 .chat-input:focus {
-  border-color: var(--neon-green);
-  box-shadow: var(--glow-green);
+  border-color: var(--accent);
 }
 
 .chat-send {
@@ -210,9 +209,9 @@ watch(() => props.ptyId, () => {
   height: 36px;
   flex-shrink: 0;
   background: transparent;
-  border: 1px solid var(--neon-purple);
+  border: 1px solid var(--accent);
   border-radius: 4px;
-  color: var(--neon-purple);
+  color: var(--accent);
   font-size: 14px;
   cursor: pointer;
   display: flex;
@@ -222,8 +221,9 @@ watch(() => props.ptyId, () => {
 }
 
 .chat-send:hover:not(:disabled) {
-  box-shadow: var(--glow-purple);
-  background: rgba(191, 90, 242, 0.1);
+  background: var(--accent-dim);
+  color: var(--accent-light);
+  border-color: var(--accent-light);
 }
 
 .chat-send:disabled {
