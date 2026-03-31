@@ -23,7 +23,7 @@
           <div v-if="store.tabs.length === 0" class="empty-state">
             <div class="empty-logo">&#x2593;&#x2593;&#x2593;</div>
             <p>DCLIENT</p>
-            <button class="empty-btn" @click="createTab">+ NEW TERMINAL</button>
+            <button class="empty-btn" @click="() => createTab()">+ NEW TERMINAL</button>
           </div>
         </div>
         <ChatPanel :pty-id="store.activeTabId" />
