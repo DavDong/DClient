@@ -1,44 +1,44 @@
 <template>
   <div class="chat-panel">
-    <div class="chat-messages" ref="messagesEl">
-      <div
-        v-for="(msg, index) in messages"
-        :key="index"
-        :class="['chat-message', msg.type]"
-      >
-        <span class="msg-tag">{{ msg.type === 'user' ? 'YOU' : 'SYS' }}</span>
-        <span class="msg-content">{{ msg.content }}</span>
-        <span class="msg-time">{{ formatTime(msg.timestamp) }}</span>
-      </div>
-      <div v-if="messages.length === 0" class="chat-empty">
-        输入指令发送到终端
+    <!-- 已选附件 -->
+    <div v-if="attachments.length > 0" class="attachments">
+      <div v-for="(att, i) in attachments" :key="i" class="attachment-tag">
+        <span class="att-icon">{{ att.type === 'folder' ? '📁' : '📄' }}</span>
+        <span class="att-name">{{ att.name }}</span>
+        <button class="att-remove" @click="attachments.splice(i, 1)">✕</button>
       </div>
     </div>
+    <!-- 输入区域 -->
     <div class="chat-input-area">
       <textarea
         ref="inputEl"
         v-model="inputText"
         class="chat-input"
-        placeholder="输入指令..."
-        rows="1"
+        placeholder="输入指令发送到终端..."
+        rows="3"
         @keydown.enter.exact.prevent="send"
-        @input="autoResize"
       ></textarea>
-      <button class="chat-send" @click="send" :disabled="!inputText.trim()">
-        &#x25B6;
+      <button class="chat-send" @click="send" :disabled="!canSend">
+        ▶
       </button>
+    </div>
+    <!-- 底部工具栏 -->
+    <div class="chat-toolbar">
+      <button class="tool-btn" @click="pickFolder" title="选择文件夹">📁 文件夹</button>
+      <button class="tool-btn" @click="pickFile" title="选择文件">📄 文件</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
+import { open } from '@tauri-apps/plugin-dialog'
 
-interface Message {
-  type: 'user' | 'system'
-  content: string
-  timestamp: Date
+interface Attachment {
+  type: 'folder' | 'file'
+  path: string
+  name: string
 }
 
 const props = defineProps<{
@@ -46,53 +46,60 @@ const props = defineProps<{
 }>()
 
 const inputText = ref('')
-const messages = ref<Message[]>([])
-const messagesEl = ref<HTMLElement>()
+const attachments = ref<Attachment[]>([])
 const inputEl = ref<HTMLTextAreaElement>()
 
-function formatTime(date: Date) {
-  return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-}
+const canSend = computed(() => inputText.value.trim() || attachments.value.length > 0)
 
-async function send() {
-  const text = inputText.value.trim()
-  if (!text || !props.ptyId) return
-
-  messages.value.push({
-    type: 'user',
-    content: text,
-    timestamp: new Date(),
-  })
-
-  // 发送到终端
-  await invoke('write_pty', { id: props.ptyId, data: text + '\n' })
-
-  inputText.value = ''
-  // 重置输入框高度
-  if (inputEl.value) inputEl.value.style.height = 'auto'
-
-  nextTick(() => {
-    messagesEl.value?.scrollTo({ top: messagesEl.value.scrollHeight, behavior: 'smooth' })
-  })
-}
-
-function autoResize() {
-  if (inputEl.value) {
-    inputEl.value.style.height = 'auto'
-    inputEl.value.style.height = Math.min(inputEl.value.scrollHeight, 120) + 'px'
+async function pickFolder() {
+  const selected = await open({ directory: true, multiple: false, title: '选择文件夹' })
+  if (selected) {
+    const path = selected as string
+    attachments.value.push({
+      type: 'folder',
+      path,
+      name: path.split('/').pop() || path.split('\\').pop() || path,
+    })
   }
 }
 
-// 当切换标签时清空消息
-watch(() => props.ptyId, () => {
-  messages.value = []
-})
+async function pickFile() {
+  const selected = await open({ multiple: true, title: '选择文件' })
+  if (selected) {
+    const paths = Array.isArray(selected) ? selected : [selected]
+    for (const path of paths) {
+      attachments.value.push({
+        type: 'file',
+        path,
+        name: path.split('/').pop() || path.split('\\').pop() || path,
+      })
+    }
+  }
+}
+
+async function send() {
+  if (!canSend.value || !props.ptyId) return
+
+  // 组合附件路径和输入文字
+  let command = ''
+  if (attachments.value.length > 0) {
+    const paths = attachments.value.map(a => `"${a.path}"`).join(' ')
+    command = inputText.value.trim()
+      ? `${inputText.value.trim()} ${paths}`
+      : paths
+  } else {
+    command = inputText.value.trim()
+  }
+
+  await invoke('write_pty', { id: props.ptyId, data: command + '\n' })
+
+  inputText.value = ''
+  attachments.value = []
+}
 </script>
 
 <style scoped>
 .chat-panel {
-  height: 200px;
-  min-height: 120px;
   background: var(--bg-panel);
   border-top: 1px solid var(--border);
   display: flex;
@@ -100,104 +107,76 @@ watch(() => props.ptyId, () => {
   flex-shrink: 0;
 }
 
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 12px;
+/* 附件区域 */
+.attachments {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 6px;
+  padding: 8px 12px 0;
 }
 
-.chat-message {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  max-width: 90%;
-}
-
-.chat-message.user {
-  align-self: flex-end;
-  background: var(--accent-dim);
-  border: 1px solid rgba(255, 107, 43, 0.2);
-}
-
-.chat-message.system {
-  align-self: flex-start;
-  background: rgba(106, 106, 138, 0.1);
-  border: 1px solid rgba(106, 106, 138, 0.2);
-}
-
-.msg-tag {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-  padding: 1px 4px;
-  border-radius: 2px;
-}
-
-.chat-message.user .msg-tag {
-  color: var(--accent);
-  background: var(--accent-dim);
-}
-
-.chat-message.system .msg-tag {
-  color: var(--text-secondary);
-  background: rgba(106, 106, 138, 0.1);
-}
-
-.msg-content {
-  color: var(--text-primary);
-  flex: 1;
-  word-break: break-all;
-  white-space: pre-wrap;
-}
-
-.msg-time {
-  font-size: 9px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-  align-self: flex-end;
-}
-
-.chat-empty {
+.attachment-tag {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: var(--text-secondary);
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(255, 107, 43, 0.2);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.att-icon {
   font-size: 12px;
 }
 
+.att-name {
+  color: var(--text-primary);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.att-remove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 10px;
+  padding: 0 2px;
+  transition: color 0.15s;
+}
+
+.att-remove:hover {
+  color: var(--color-error);
+}
+
+/* 输入区域 */
 .chat-input-area {
   display: flex;
   align-items: flex-end;
   gap: 8px;
   padding: 8px 12px;
-  border-top: 1px solid var(--border);
 }
 
 .chat-input {
   flex: 1;
   background: var(--bg-primary);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--text-primary);
-  font-family: 'Fira Code', monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   padding: 8px 10px;
   resize: none;
   outline: none;
   transition: border-color 0.2s;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .chat-input::placeholder {
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .chat-input:focus {
@@ -210,7 +189,7 @@ watch(() => props.ptyId, () => {
   flex-shrink: 0;
   background: transparent;
   border: 1px solid var(--accent);
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--accent);
   font-size: 14px;
   cursor: pointer;
@@ -229,5 +208,28 @@ watch(() => props.ptyId, () => {
 .chat-send:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+/* 底部工具栏 */
+.chat-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 0 12px 8px;
+}
+
+.tool-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.tool-btn:hover {
+  color: var(--text-secondary);
+  background: var(--bg-sidebar-hover);
 }
 </style>

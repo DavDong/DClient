@@ -31,9 +31,9 @@
   --color-info: #60a5fa;
 
   /* 文字 */
-  --text-primary: #e5e5e5;
-  --text-secondary: #888888;
-  --text-muted: #555555;
+  --text-primary: #f0f0f0;
+  --text-secondary: #aaaaaa;
+  --text-muted: #777777;
 
   /* 边框 */
   --border: #333333;

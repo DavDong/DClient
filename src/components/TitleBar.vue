@@ -1,7 +1,7 @@
 <template>
   <div class="title-bar" data-tauri-drag-region>
     <div class="title-bar-logo" data-tauri-drag-region>
-      <span class="logo-icon" data-tauri-drag-region>●</span>
+      <span class="logo-icon" data-tauri-drag-region>◎</span>
       <span class="title-text" data-tauri-drag-region>DClient</span>
     </div>
     <div class="title-bar-controls">

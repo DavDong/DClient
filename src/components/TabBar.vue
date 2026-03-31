@@ -1,5 +1,11 @@
 <template>
   <div class="tab-bar">
+    <button
+      v-if="store.tabs.length > 1"
+      :class="['grid-btn', { active: store.gridMode }]"
+      @click="store.gridMode = !store.gridMode"
+      :title="store.gridMode ? '退出分屏' : '分屏显示'"
+    >⊞</button>
     <div
       v-for="tab in store.tabs"
       :key="tab.id"
@@ -18,14 +24,24 @@
         @keyup.enter="finishRename(tab.id)"
         @keyup.escape="cancelRename"
       />
-      <button class="tab-close" @click.stop="requestClose(tab)">&#x2715;</button>
+      <button class="tab-close" @click.stop="requestClose(tab)" title="关闭">✕</button>
     </div>
     <button class="tab-add" @click="$emit('new')">
       <span>+ NEW</span>
     </button>
+    <button v-if="store.tabs.length > 0" class="tab-clear" @click="showClearConfirm = true" title="清空所有标签">✕ ALL</button>
 
     <!-- 关闭标签确认弹窗 -->
     <Teleport to="body">
+      <div v-if="showClearConfirm" class="confirm-overlay" @click.self="showClearConfirm = false">
+        <div class="confirm-dialog">
+          <p class="confirm-text">确定关闭全部 {{ store.tabs.length }} 个终端？</p>
+          <div class="confirm-actions">
+            <button class="confirm-btn cancel" @click="showClearConfirm = false">取消</button>
+            <button class="confirm-btn ok" @click="confirmClearAll">确定清空</button>
+          </div>
+        </div>
+      </div>
       <div v-if="closingTab" class="confirm-overlay" @click.self="closingTab = null">
         <div class="confirm-dialog">
           <p class="confirm-text">确定关闭终端「{{ closingTab.name }}」？</p>
@@ -48,18 +64,25 @@ const editingId = ref<string | null>(null)
 const editName = ref('')
 const renameInput = ref<HTMLInputElement[]>()
 const closingTab = ref<Tab | null>(null)
+const showClearConfirm = ref(false)
 
 const emit = defineEmits<{
   close: [id: string]
+  'clear-all': []
   new: []
 }>()
 
 function requestClose(tab: Tab) {
-  if (tab.isConnected) {
+  if (tab.isConnected && tab.hasInput) {
     closingTab.value = tab
   } else {
     emit('close', tab.id)
   }
+}
+
+function confirmClearAll() {
+  showClearConfirm.value = false
+  emit('clear-all')
 }
 
 function confirmCloseTab() {
@@ -93,12 +116,12 @@ function cancelRename() {
 .tab-bar {
   display: flex;
   align-items: center;
-  height: 38px;
+  flex-wrap: wrap;
+  min-height: 38px;
   background: var(--bg-tab);
   border-bottom: 1px solid var(--border);
-  padding: 0 8px;
+  padding: 4px 8px;
   gap: 2px;
-  overflow-x: auto;
 }
 
 .tab {
@@ -109,7 +132,7 @@ function cancelRename() {
   padding: 0 12px;
   border-radius: 4px;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 12px;
   white-space: nowrap;
   border: 1px solid transparent;
@@ -123,7 +146,7 @@ function cancelRename() {
 
 .tab.active {
   background: var(--bg-tab-active);
-  color: var(--text-primary);
+  color: var(--accent);
   border-left: 3px solid var(--accent);
   border-color: transparent;
   border-left-color: var(--accent);
@@ -161,10 +184,13 @@ function cancelRename() {
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  font-size: 10px;
-  padding: 2px;
-  border-radius: 2px;
-  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
   opacity: 0;
   transition: all 0.2s;
 }
@@ -175,17 +201,18 @@ function cancelRename() {
 
 .tab-close:hover {
   color: var(--color-error);
+  background: rgba(248, 113, 113, 0.1);
 }
 
 .tab-add {
   display: flex;
   align-items: center;
   height: 30px;
-  padding: 0 12px;
+  padding: 0 10px;
   border-radius: 4px;
-  border: 1px dashed var(--accent);
+  border: none;
   background: transparent;
-  color: var(--accent);
+  color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: 11px;
   cursor: pointer;
@@ -193,8 +220,54 @@ function cancelRename() {
 }
 
 .tab-add:hover {
-  border-color: var(--accent-light);
-  color: var(--accent-light);
+  color: var(--text-secondary);
+  background: var(--bg-tab-hover);
+}
+
+.tab-clear {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.tab-clear:hover {
+  color: var(--color-error);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.grid-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.grid-btn:hover {
+  color: var(--text-secondary);
+  background: var(--bg-tab-hover);
+}
+
+.grid-btn.active {
+  color: var(--accent);
   background: var(--accent-dim);
 }
 

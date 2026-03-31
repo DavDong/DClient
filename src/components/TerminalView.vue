@@ -12,7 +12,10 @@ import { invoke } from '@tauri-apps/api/core'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 import { Terminal } from 'xterm'
 import { FitAddon } from '@xterm/addon-fit'
+import { useTerminalStore } from '@/stores/terminal'
 import 'xterm/css/xterm.css'
+
+const store = useTerminalStore()
 
 const props = defineProps<{
   ptyId: string
@@ -79,6 +82,10 @@ onMounted(async () => {
 
   // 键盘输入 → PTY
   terminal.onData(async (data: string) => {
+    // 回车键表示用户执行了命令
+    if (data.includes('\r') || data.includes('\n')) {
+      store.markInput(props.ptyId)
+    }
     await invoke('write_pty', { id: props.ptyId, data })
   })
 
