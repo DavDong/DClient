@@ -14,12 +14,9 @@ jobs:
           - platform: macos-latest
             args: --target aarch64-apple-darwin
             target: aarch64-apple-darwin
-          - platform: macos-latest
-            args: --target x86_64-apple-darwin
-            target: x86_64-apple-darwin
           - platform: windows-latest
-            args: ''
-            target: ''
+            args: --target x86_64-pc-windows-msvc
+            target: x86_64-pc-windows-msvc
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -50,8 +47,7 @@ jobs:
 
             ## 下载
             - **macOS (Apple Silicon)**: DClient_x.x.x_aarch64.dmg
-            - **macOS (Intel)**: DClient_x.x.x_x64.dmg
-            - **Windows**: DClient_x.x.x_x64-setup.exe
+            - **Windows (x64)**: DClient_x.x.x_x64-setup.exe
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
