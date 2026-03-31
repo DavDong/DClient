@@ -1,0 +1,57 @@
+name: Build & Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: --target aarch64-apple-darwin
+            target: aarch64-apple-darwin
+          - platform: macos-latest
+            args: --target x86_64-apple-darwin
+            target: x86_64-apple-darwin
+          - platform: windows-latest
+            args: ''
+            target: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 安装 Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: 安装前端依赖
+        run: npm install
+
+      - name: 构建 Tauri 应用
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: 'DClient v__VERSION__'
+          releaseBody: |
+            DClient v__VERSION__ 发布
+
+            ## 下载
+            - **macOS (Apple Silicon)**: DClient_x.x.x_aarch64.dmg
+            - **macOS (Intel)**: DClient_x.x.x_x64.dmg
+            - **Windows**: DClient_x.x.x_x64-setup.exe
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
